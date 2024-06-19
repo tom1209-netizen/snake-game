@@ -55,25 +55,28 @@ ButtonInput but (clk,l,r,u,d, direction);
 assign randomx = randX;
 assign randomy = randY;
 
+// Initialize the snake's starting position
 initial
 begin
 snakeX = 10'd20;
 snakeY = 9'd20;
 end
 
+// Determine if the current pixel is within the apple's boundaries for display purposes
 always @(posedge VGA_clk) begin
   inX <= (xCount > appleX & xCount < (appleX + 50));
   inY <= (yCount > appleY & yCount < (appleY + 50));
   apple <= inX & inY;
 end
 
-
+// Determine if the current pixel is within the game borders
 always @(posedge VGA_clk) begin
   border <= (((xCount >= 0) & (xCount < 15) & ((yCount >= 220) & (yCount < 280))) | 
              (xCount >= 630) & (xCount < 641) & ((yCount >= 220) & (yCount < 280))) | 
              ((yCount >= 0) & (yCount < 15) | (yCount >= 465) & (yCount < 481));
 end
 
+// Reset apple position or move apple to random location when eaten
 always @(posedge VGA_clk) begin
   if (reset | gameOver) begin
     appleX = 350;
@@ -85,6 +88,7 @@ always @(posedge VGA_clk) begin
   end
 end
 
+// Update the snake's position based on direction input
 always @(posedge update_clock) begin
   if (direction == 4'b0001) begin snakeX = snakeX - 5; end
   else if (direction == 4'b0010) begin snakeX = snakeX + 5; end
@@ -92,10 +96,12 @@ always @(posedge update_clock) begin
   else if (direction == 4'b1000) begin snakeY = snakeY + 5; end
 end
 
+// Detect if current pixel is within the snake's head for display and collision purposes
 always @(posedge VGA_clk) begin
   head <= (xCount > snakeX & xCount < (snakeX+10)) & (yCount > snakeY & yCount < (snakeY+10));
 end
 
+// Determine if game over condition is met (snake collides with border or reset is pressed)
 always @(posedge VGA_clk) begin
   if ((border & head) | reset) gameOver <= 1;
   else gameOver <= 0;
