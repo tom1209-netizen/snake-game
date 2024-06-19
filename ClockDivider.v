@@ -1,4 +1,4 @@
-module ClockDivider(input clk,output reg VGA_clk);
+module ClockDivider(input clk, output reg VGA_clk);
 
   integer check = 4;
   integer a = 0;

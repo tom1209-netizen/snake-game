@@ -17,11 +17,17 @@ module Random (
             begin
                 // LFSR for randX (7-bit)
                 lfsrX <= {lfsrX[5:0], lfsrX[6] ^ lfsrX[5]};  
-                randX <= lfsrX;
+                if (lfsrX >= 96)   
+                    randX <= 96;  
+                else
+                    randX <= lfsrX; 
 
                 // LFSR for randY (7-bit)
                 lfsrY <= {lfsrY[5:0], lfsrY[6] ^ lfsrY[5]};  
-                randY <= lfsrY;
+                if (lfsrY >= 64)   
+                    randY <= 64;  
+                else
+                    randY <= lfsrY;
             end
     end
 endmodule
