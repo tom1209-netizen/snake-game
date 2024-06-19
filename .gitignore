@@ -1,0 +1,18 @@
+# Object files
+*.o
+
+# Executable files
+*.exe
+*.out
+*.bin
+
+# Dynamic libraries
+*.dll
+*.so
+
+# Other intermediate files
+*.obj
+*.temp
+
+# Mac trash file
+.DS_Store
