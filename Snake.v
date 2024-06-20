@@ -1,120 +1,113 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 06/18/2024 08:00:48 AM
-// Design Name: 
-// Module Name: Snake
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+module Snake(
+    input clk,
+    input reset,
+    input l,
+    input r,  
+    input u,  
+    input d, 
+    output mosi,
+    output sck,
+    output cs,
+    output dc,
+    output vbat,
+    output vdd,
+    output res
+);
+    wire [3:0] direction;
+    ButtonInput but(clk, l, r, u, d, direction);
 
-module Snake(red, green, blue,h_sync,v_sync,clk, reset,l,r,u,d);
-input clk, reset, l, r, u, d;
-output reg [4:0] red, blue;
-output reg [5:0] green;
-output h_sync, v_sync;
+    wire [6:0] randX, randY;
+    Random ran(clk, reset, randX, randY);
 
-wire VGA_clk,update_clock,displayArea;
-wire [9:0] xCount;
-wire [9:0] yCount;
-wire [3:0] direction;
-wire [9:0] randX;
-wire [9:0] randomX;
-wire [8:0] randY;
-wire [8:0] randomY;
-reg apple;
-reg border;
-wire R,G,B;
-reg snake;
-reg gameOver;
-reg head;
-reg [9:0] appleX;
-reg [9:0] appleY;
-reg inX, inY;
-reg [9:0] snakeX;
-reg [8:0] snakeY;
+    reg [7:0] spi_data;
+    reg spi_start = 0;
+    wire spi_done;
+    SpiMaster spi0(clk, reset, spi_start, spi_data, spi_done, mosi, sck, cs);
 
-ClockDivider divider (clk, VGA_clk);
-UpdateClock upd(clk,update_clock);
-VGAgenerator vga (VGA_clk, xCount, yCount, displayArea, h_sync, v_sync);
-Random ran (VGA_clk,randX, randY);
-ButtonInput but (clk,l,r,u,d, direction);
+    // OLED initialization and control
+    reg oled_init_start = 0;
+    wire oled_init_done;
+    OledInit oled_init(
+        .CLK(clk),
+        .EN(oled_init_start),
+        .RST(reset),
+        .CS(cs),
+        .DC(dc),
+        .FIN(oled_init_done),
+        .RES(res),
+        .SCLK(sck),
+        .SDO(mosi),
+        .VBAT(vbat),
+        .VDD(vdd)
+    );
 
-assign randomx = randX;
-assign randomy = randY;
+    // Adjusted for a 96x64 OLED display
+    reg [767:0] display_buffer;  // Each bit represents a pixel (96x64 / 8 = 768 bytes)
+    reg [9:0] buffer_addr = 0;
 
-// Initialize the snake's starting position
-initial
-begin
-snakeX = 10'd20;
-snakeY = 9'd20;
-end
+    // Snake and apple properties
+    reg [6:0] snake_x = 20, snake_y = 20;  // Initial snake position
+    reg [6:0] apple_x = 48, apple_y = 32;  // Initial apple position
+    reg game_over = 0;
 
-// Determine if the current pixel is within the apple's boundaries for display purposes
-always @(posedge VGA_clk) begin
-  inX <= (xCount > appleX & xCount < (appleX + 50));
-  inY <= (yCount > appleY & yCount < (appleY + 50));
-  apple <= inX & inY;
-end
+    // Update the display buffer and send to the OLED via SPI
+    always @(posedge clk) begin
+        if (reset) begin
+            // Reset logic
+            buffer_addr <= 0;
+            spi_start <= 0;
+            oled_init_start <= 1;
+            snake_x <= 20;
+            snake_y <= 20;
+            apple_x <= 48;
+            apple_y <= 32;
+            game_over <= 0;
+            display_buffer <= 0;
+        end else if (oled_init_done) begin
+            oled_init_start <= 0;
+            if (spi_done && buffer_addr < 768) begin
+                spi_start <= 1;
+                spi_data <= display_buffer[buffer_addr * 8 +: 8];
+                buffer_addr <= buffer_addr + 1;
+            end else if (buffer_addr >= 768) begin
+                buffer_addr <= 0;  // Restart buffer cycle
+            end
+        end
+    end
 
-// Determine if the current pixel is within the game borders
-always @(posedge VGA_clk) begin
-  border <= (((xCount >= 0) & (xCount < 15) & ((yCount >= 220) & (yCount < 280))) | 
-             (xCount >= 630) & (xCount < 641) & ((yCount >= 220) & (yCount < 280))) | 
-             ((yCount >= 0) & (yCount < 15) | (yCount >= 465) & (yCount < 481));
-end
+    // Game logic to update display_buffer based on game state
+    integer i;
+    always @(posedge clk) begin
+        if (!reset && !game_over) begin
+            // Clear display buffer each frame
+            for (i = 0; i < 768; i = i + 1) begin
+                display_buffer[i] <= 0;
+            end
 
-// Reset apple position or move apple to random location when eaten
-always @(posedge VGA_clk) begin
-  if (reset | gameOver) begin
-    appleX = 350;
-    appleY = 300;
-  end
-  if (apple & head) begin
-    appleX <= randX;
-    appleY <= randY;
-  end
-end
+            // Update apple position in display buffer
+            display_buffer[apple_x + apple_y * 96] <= 1;
 
-// Update the snake's position based on direction input
-always @(posedge update_clock) begin
-  if (direction == 4'b0001) begin snakeX = snakeX - 5; end
-  else if (direction == 4'b0010) begin snakeX = snakeX + 5; end
-  else if (direction == 4'b0100) begin snakeY = snakeY - 5; end
-  else if (direction == 4'b1000) begin snakeY = snakeY + 5; end
-end
+            // Update snake position in display buffer
+            display_buffer[snake_x + snake_y * 96] <= 1;
 
-// Detect if current pixel is within the snake's head for display and collision purposes
-always @(posedge VGA_clk) begin
-  head <= (xCount > snakeX & xCount < (snakeX+10)) & (yCount > snakeY & yCount < (snakeY+10));
-end
+            // Handle direction input and move snake
+            case (direction)
+                4'b0001: snake_y <= (snake_y > 0) ? snake_y - 1 : 63;  // Up
+                4'b0010: snake_y <= (snake_y < 63) ? snake_y + 1 : 0;  // Down
+                4'b0100: snake_x <= (snake_x > 0) ? snake_x - 1 : 95;  // Left
+                4'b1000: snake_x <= (snake_x < 95) ? snake_x + 1 : 0;  // Right
+            endcase
 
-// Determine if game over condition is met (snake collides with border or reset is pressed)
-always @(posedge VGA_clk) begin
-  if ((border & head) | reset) gameOver <= 1;
-  else gameOver <= 0;
-end
-
-assign R = (displayArea & apple);
-assign G = (displayArea & head);
-assign B = (displayArea & border);
-
-always @(posedge VGA_clk) begin
-  red = {5{R}};
-  green = {6{G}};
-  blue = {5{B}};
-end
-
+            // Check for collisions with boundaries or apple
+            if (snake_x == 0 || snake_x == 96 || snake_y == 0 || snake_y == 64) begin
+                game_over <= 1;
+            end else if (snake_x == apple_x && snake_y == apple_y) begin
+                // Randomly reposition the apple
+                apple_x <= randX;  
+                apple_y <= randY;  
+            end
+        end
+    end
 endmodule
