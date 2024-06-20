@@ -4,7 +4,7 @@ module Top_Snake(
     input CLOCK,
     input [2:0] btn,
     input [12:0] pixel,
-    output [15:0] oled_data,
+    output [15:0] oled_data
     );
     
     wire [35:0] SLOW_CLOCK;
