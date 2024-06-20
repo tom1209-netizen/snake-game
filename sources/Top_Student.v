@@ -27,6 +27,7 @@ module Top_Student (
 
     graphical_visualisation normal_GV_dev (CLK100MHZ, pixel_index, normal_oled_data); // Part 4.2B
 
+    reg [2:0] btn;
     wire [15:0] snake_oled_data;
     wire [3:0] snake_an;
     wire [7:0] snake_seg;
