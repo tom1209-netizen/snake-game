@@ -20,6 +20,5 @@ module ButtonInput (
             direction <= UP;
         else if (d)
             direction <= DOWN;
-        // No change for no input or simultaneous button presses
     end
 endmodule
