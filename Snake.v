@@ -3,10 +3,10 @@
 module Snake(
     input clk,
     input reset,
-    input l,
-    input r,  
-    input u,  
-    input d, 
+    input l,  // Left button
+    input r,  // Right button
+    input u,  // Up button
+    input d,  // Down button
     output mosi,
     output sck,
     output cs,
@@ -24,7 +24,7 @@ module Snake(
     reg [7:0] spi_data;
     reg spi_start = 0;
     wire spi_done;
-    SpiMaster spi0(clk, reset, spi_start, spi_data, spi_done, mosi, sck, cs);
+    SpiControl spi0(clk, reset, spi_start, spi_data, cs, mosi, sck, spi_done);
 
     // OLED initialization and control
     reg oled_init_start = 0;
@@ -51,11 +51,6 @@ module Snake(
     reg [6:0] snake_x = 20, snake_y = 20;  // Initial snake position
     reg [6:0] apple_x = 48, apple_y = 32;  // Initial apple position
     reg game_over = 0;
-
-    localparam LEFT  = 4'b0001;
-    localparam RIGHT = 4'b0010;
-    localparam UP    = 4'b0100;
-    localparam DOWN  = 4'b1000;
 
     // Update the display buffer and send to the OLED via SPI
     always @(posedge clk) begin
@@ -99,10 +94,10 @@ module Snake(
 
             // Handle direction input and move snake
             case (direction)
-                LEFT: snake_x <= (snake_x > 0) ? snake_x - 1 : 63;  // Left
-                RIGHT: snake_x <= (snake_x < 63) ? snake_x + 1 : 0;  // Right
-                UP: snake_y <= (snake_y > 0) ? snake_y + 1 : 95;  // Up
-                DOWN: snake_y <= (snake_y < 95) ? snake_y - 1 : 0;  // Down
+                4'b0001: snake_y <= (snake_y > 0) ? snake_y - 1 : 63;  // Up
+                4'b0010: snake_y <= (snake_y < 63) ? snake_y + 1 : 0;  // Down
+                4'b0100: snake_x <= (snake_x > 0) ? snake_x - 1 : 95;  // Left
+                4'b1000: snake_x <= (snake_x < 95) ? snake_x + 1 : 0;  // Right
             endcase
 
             // Check for collisions with boundaries or apple
@@ -110,8 +105,8 @@ module Snake(
                 game_over <= 1;
             end else if (snake_x == apple_x && snake_y == apple_y) begin
                 // Randomly reposition the apple
-                apple_x <= randX;  
-                apple_y <= randY;  
+                apple_x <= randX % 96;  // Ensure apple_x is within bounds
+                apple_y <= randY % 64;  // Ensure apple_y is within bounds
             end
         end
     end
