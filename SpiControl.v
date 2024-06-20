@@ -14,10 +14,10 @@ module SpiControl(
     input CLK;
     input RST;
     input SPI_EN;
-    input [7:0] SPI_DATA;
-    output CS;
-    output SDO;
-    output SCLK;
+    input [7:0] SPI_DATA; // 
+    output CS; 
+    output SDO; // Mosi
+    output SCLK; // Slave clock
     output SPI_FIN;
 
 
