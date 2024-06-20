@@ -4,8 +4,9 @@
 ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
 
 ## Clock Signal
-#set_property -dict { PACKAGE_PIN H16    IOSTANDARD LVCMOS33 } [get_ports { clk }]; #IO_L13P_T2_MRCC_35 Sch=SYSCLK
-#create_clock -add -name sys_clk_pin -period 8.00 -waveform {0 4} [get_ports { clk }];#set
+set_property PACKAGE_PIN H16 [get_ports CLK100MHZ]; 
+	set_property IOSTANDARD LVCMOS33 [get_ports CLK100MHZ];
+	create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports CLK100MHZ];
 
 ## Switches
 #set_property -dict { PACKAGE_PIN M20    IOSTANDARD LVCMOS33 } [get_ports { sw[0] }]; #IO_L7N_T1_AD2N_35 Sch=SW0
@@ -32,28 +33,28 @@ set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports btnL]; 
 set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports btnR]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
 
 ## Pmod Header JA
-#Sch name = JC1
+#Sch name = JA1
 set_property PACKAGE_PIN K17 [get_ports {JA[0]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[0]}]
-#Sch name = JC2
+#Sch name = JA2
 set_property PACKAGE_PIN M18 [get_ports {JA[1]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[1]}]
-#Sch name = JC3
+#Sch name = JA3
 set_property PACKAGE_PIN N17 [get_ports {JA[2]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[2]}]
-#Sch name = JC4
+#Sch name = JA4
 set_property PACKAGE_PIN P18 [get_ports {JA[3]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[3]}]
-#Sch name = JC7
+#Sch name = JA7
 set_property PACKAGE_PIN L17 [get_ports {JA[4]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[4]}]
-#Sch name = JC8
+#Sch name = JA8
 set_property PACKAGE_PIN M19 [get_ports {JA[5]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[5]}]
-#Sch name = JC9
+#Sch name = JA9
 set_property PACKAGE_PIN P17 [get_ports {JA[6]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[6]}]
-#Sch name = JC10
+#Sch name = JA10
 set_property PACKAGE_PIN R18 [get_ports {JA[7]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {JA[7]}]
 
