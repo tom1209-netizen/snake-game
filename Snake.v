@@ -52,6 +52,11 @@ module Snake(
     reg [6:0] apple_x = 48, apple_y = 32;  // Initial apple position
     reg game_over = 0;
 
+    localparam LEFT  = 4'b0001;
+    localparam RIGHT = 4'b0010;
+    localparam UP    = 4'b0100;
+    localparam DOWN  = 4'b1000;
+
     // Update the display buffer and send to the OLED via SPI
     always @(posedge clk) begin
         if (reset) begin
@@ -94,10 +99,10 @@ module Snake(
 
             // Handle direction input and move snake
             case (direction)
-                4'b0001: snake_y <= (snake_y > 0) ? snake_y - 1 : 63;  // Up
-                4'b0010: snake_y <= (snake_y < 63) ? snake_y + 1 : 0;  // Down
-                4'b0100: snake_x <= (snake_x > 0) ? snake_x - 1 : 95;  // Left
-                4'b1000: snake_x <= (snake_x < 95) ? snake_x + 1 : 0;  // Right
+                LEFT: snake_x <= (snake_x > 0) ? snake_x - 1 : 63;  // Left
+                RIGHT: snake_x <= (snake_x < 63) ? snake_x + 1 : 0;  // Right
+                UP: snake_y <= (snake_y > 0) ? snake_y + 1 : 95;  // Up
+                DOWN: snake_y <= (snake_y < 95) ? snake_y - 1 : 0;  // Down
             endcase
 
             // Check for collisions with boundaries or apple

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module SpiCtrl(
+module SpiControl(
     CLK,
     RST,
     SPI_EN,

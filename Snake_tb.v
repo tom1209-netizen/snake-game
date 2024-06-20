@@ -76,4 +76,15 @@ module Snake_tb;
         #1000;
         $stop;
     end
+
+    initial begin
+        $dumpfile("snake_game_tb.vcd");
+        $dumpvars(0, Snake_tb);
+    end
+
+    // Monitor statements
+    initial begin
+        $monitor("Time = %0t | reset = %b | l = %b | r = %b | u = %b | d = %b | snake_x = %d | snake_y = %d | apple_x = %d | apple_y = %d | game_over = %b",
+            $time, reset, l, r, u, d, uut.snake_x, uut.snake_y, uut.apple_x, uut.apple_y, uut.game_over);
+    end
 endmodule

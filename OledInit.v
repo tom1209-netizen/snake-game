@@ -54,7 +54,7 @@ module OledInit(
 	// ===========================================================================
 	// 										Implementation
 	// ===========================================================================	
-	SpiCtrl SPI_COMP(
+	SpiControl SPI_COMP(
 			.CLK(CLK),
 			.RST(RST),
 			.SPI_EN(temp_spi_en),

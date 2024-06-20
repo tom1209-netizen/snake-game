@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module spi_master(
+module SpiMaster(
     input clk,
     input reset,
     input start,
