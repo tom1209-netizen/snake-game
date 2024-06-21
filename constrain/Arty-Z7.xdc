@@ -29,8 +29,8 @@ set_property PACKAGE_PIN H16 [get_ports CLK100MHZ];
 ## Buttons
 set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports btnC]; #IO_L4P_T0_35 Sch=BTN0
 set_property -dict { PACKAGE_PIN D20    IOSTANDARD LVCMOS33 } [get_ports btnU]; #IO_L4N_T0_35 Sch=BTN1
-set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports btnL]; #IO_L9N_T1_DQS_AD3N_35 Sch=BTN2
-set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports btnR]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
+set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports btnR]; #IO_L9N_T1_DQS_AD3N_35 Sch=BTN2
+set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports btnL]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
 
 ## Pmod Header JA
 #Sch name = JA1
